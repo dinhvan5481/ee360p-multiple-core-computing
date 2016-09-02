@@ -1,0 +1,95 @@
+
+Approximate Schedule for Multicore Computing
+	Vijay K. Garg
+
+Week 1  (August)
+-----
+Topics: Introduction, Thread Creation, Mutual Exclusion
+
+Ref:
+Textbook: C1-2
+
+Lect 1: Introduction, Object, Thread, Runnable, Callable, Amdahl's Law
+Lect 2: Futures, ThreadPools, ForkJoin
+Lect 3: Mutual Exclusion: Peterson
+Lec  4: Filter, Tournament
+Lect 5: Bakery, 
+Lect 5: Splitter, Fast Mutex
+
+Week 2  (September)
+-----
+Due: Term project proposal, HW1
+
+Topics:
+Lock based concurrent programming
+
+Ref:
+Textbook C3
+
+Lect 7: Lower Bounds on Mutex
+Lect 8: Test 1 (50 min) 
+Lect 9: Semaphores
+
+Lect 10: Monitors
+Lect 11: Class Presentation I: Parallel Programming Languages
+Lect 12: openMP
+
+
+Week 3 (October)
+-----
+Due: HW2, Term project interim report (1 page)
+
+Topics:
+Correctness Conditions
+Lock Free Synchronization
+
+
+
+Ref:
+Textbook C3, C4
+
+Lec 13: Anderson Locks, CLH Locks, MCS Locks
+Lec 14: Test 2 (50 min), 
+Lec 15: Sequential Consistency, Linearizability
+Lec 16: Register Construction
+Lec 17: Class Presentation II: Testing and Verification
+Lec 18: Atomic Snapshots
+
+Week 4 (November)
+-----
+Due: HW3, 
+
+Topics: Consensus, Concurrent Data Structures
+
+Ref:
+Textbook C5
+Handout on Concurrent Data Structures
+
+Lec 19: Consensus Number
+Lec 20: Class Presentation III: Concurrent Data Structures
+Lec 21: Linked Lists
+Lec 22: Concurrent Stacks, Queues
+Lec 23: Class Presentation IV: Miscellaneous
+Lec 24: Hash Tables
+
+
+Week 5 (December)
+------
+Due: HW 4, Term Paper (8 pages)
+
+Topics: Transactional Memory, Universal Construction, Functional Programming
+Test 3 (75 minutes)
+
+
+Ref:
+Textbook C5
+Handout on Functional Programming
+Handout on GPU Algorithms
+
+Lec 25: Universal Construction, Functional Programming
+Lec 26: GPU
+Lec 27: Project Presentation I
+Lec 28: Test 3
+Lec 29: Project Presentation II
+Lec 30: Project Presentation III
+
