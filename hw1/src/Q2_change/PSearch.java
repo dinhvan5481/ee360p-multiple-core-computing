@@ -19,9 +19,6 @@ public class PSearch implements Callable<Integer> {
     int begin = -1;
     int end = -1;
     int [] Array = null;
-    int partSize = 0;
-    int partNum = 0;
-
 
     public PSearch(int k, int[] array, int begin, int end){
         this.k = k;
