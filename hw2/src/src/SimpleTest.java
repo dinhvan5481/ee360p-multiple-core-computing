@@ -33,24 +33,40 @@ public class SimpleTest {
 
     public static void main(String[] args) {
         int numOfParties = 5;
-        Thread[] threads = new Thread[numOfParties + 2];
+        Thread[] threads = new Thread[2 * numOfParties + 2];
         CyclicBarrier cyclicBarrier = new CyclicBarrier(numOfParties);
 
-        log("Case 1: When waiting threads reach the right number of parties");
-        for(int i = 0; i < numOfParties; i++) {
+        if(false) {
+            log("Case 1: When waiting threads = number of parties");
+            for (int i = 0; i < numOfParties; i++) {
+                threads[i] = new Thread(new Task(cyclicBarrier), String.format("Thread %d", i));
+                threads[i].start();
+            }
+
+            try {
+                for (int i = 0; i < numOfParties; i++) {
+                    threads[i].join();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            log("End case 1");
+        }
+
+        log("Case 2: When waiting threads more than number of parties");
+        for(int i = 0; i < threads.length; i++) {
             threads[i] = new Thread(new Task(cyclicBarrier), String.format("Thread %d", i));
             threads[i].start();
         }
 
         try {
-            for(int i = 0; i < numOfParties; i++) {
+            for(int i = 0; i < threads.length; i++) {
                 threads[i].join();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        log("End case 1");
-
+        log("End case 2");
 
     }
 

@@ -7,7 +7,7 @@ public class CyclicBarrier {
   // locks 
   private int parties;
 
-  private Semaphore[] barrierLocks;
+  private Semaphore barrierLock;
   private Semaphore mutex;
   private AtomicInteger lockPointer;
 
@@ -15,11 +15,8 @@ public class CyclicBarrier {
     // TODO: The constructor for this CyclicBarrier
     this.parties = parties;
 
-    this.barrierLocks = new Semaphore[parties];
+    this.barrierLock = new Semaphore(-parties);
 
-    for (int i = 0; i < parties; i++) {
-      barrierLocks[i] = new Semaphore(0);
-    }
     this.mutex = new Semaphore(1);
     lockPointer = new AtomicInteger(parties);
   }
@@ -37,11 +34,16 @@ public class CyclicBarrier {
 
     if(lockPointerLocal > 0) {
       mutex.release();
-      barrierLocks[lockPointerLocal].acquire();
+      barrierLock.acquire();
     } else {
-      for (int i = this.parties - 1; i > 0 ; i--) {
-        barrierLocks[i].release(2);
+      barrierLock.release(2 * this.parties + 1);
+      //TODO: elimate busy wait. Is there any better way to implement it? Since we need to wait all threads finish before we reset semeaphore
+      while(barrierLock.hasQueuedThreads()){
+
       }
+      barrierLock = null;
+      barrierLock = new Semaphore(-this.parties);
+      lockPointer.set(this.parties);
       mutex.release();
     }
     return lockPointerLocal;
