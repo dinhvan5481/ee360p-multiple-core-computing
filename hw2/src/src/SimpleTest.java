@@ -5,21 +5,21 @@
 class Task implements Runnable {
 
     private CyclicBarrier barrier;
-    private String threadName;
 
     public Task(CyclicBarrier barrier) {
         this.barrier = barrier;
-        this.threadName = Thread.currentThread().getName();
+
     }
 
     @Override
     public void run() {
+        String threadName = Thread.currentThread().getName();
         try {
-            log(String.format("%s is waiting on barrier", this.threadName));
+            log(String.format("%s is waiting on barrier", threadName));
             barrier.await();
-            log(String.format("%s crossed the barrier", this.threadName));
+            log(String.format("%s crossed the barrier", threadName));
         } catch (InterruptedException e) {
-            log(String.format("InterruptedException happens for thread %s", this.threadName));
+            log(String.format("InterruptedException happens for thread %s", threadName));
             log(e.getMessage());
         }
     }
@@ -40,6 +40,14 @@ public class SimpleTest {
         for(int i = 0; i < numOfParties; i++) {
             threads[i] = new Thread(new Task(cyclicBarrier), String.format("Thread %d", i));
             threads[i].start();
+        }
+
+        try {
+            for(int i = 0; i < numOfParties; i++) {
+                threads[i].join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         log("End case 1");
 
