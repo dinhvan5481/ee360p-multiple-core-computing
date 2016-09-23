@@ -12,8 +12,12 @@ public class SimpleTest {
         People[] people = new People[numOfPeople];
         Thread[] threads = new Thread[numOfPeople];
         BathroomProtocol lockProtocol = new LockBathroomProtocol();
+        BathroomProtocol syncBathRoomProtocol = new SyncBathroomProtocol();
 
+        int numberOfTestCases = 10;
         HashMap<Integer, Boolean> choosingBag = new HashMap<>();
+        boolean[] testCaseEnable = new boolean[numberOfTestCases];
+
 
         for (int i = 0; i < numOfFemale; i++) {
             people[i] = new Female(i, (i+1) * 1000);
@@ -25,7 +29,8 @@ public class SimpleTest {
             people[i].setBathroom(lockProtocol);
         }
 
-        if(false) {
+        testCaseEnable[0] = false;
+        if(testCaseEnable[0]) {
             log("Case 1: All female get in first, and then male. Expect: all female leave before male can get in");
             for (int i = numOfFemale - 1; i > 0 ; i--) {
                 threads[i] = new Thread(people[i]);
@@ -38,7 +43,8 @@ public class SimpleTest {
             log("End case 1");
         }
 
-        if(true) {
+        testCaseEnable[1] = false;
+        if(testCaseEnable[1]) {
             int peopleThreadIndex = -1;
             Random threadIndexGenerator = new Random();
             log("Case 2: People enter in randomly order. Expect: all female / male whom enter first leave before male can get in");
@@ -52,6 +58,23 @@ public class SimpleTest {
                 threads[peopleThreadIndex].start();
             }
             log("End case 2");
+        }
+
+        testCaseEnable[2] = true;
+        if(testCaseEnable[2]) {
+            for (int i = 0; i < numOfPeople; i++) {
+                people[i].setBathroom(syncBathRoomProtocol);
+            }
+            log("Case 3: Use Sync Protocol - All female get in first, and then male. Expect: all female leave before male can get in");
+            for (int i = numOfFemale - 1; i > 0 ; i--) {
+                threads[i] = new Thread(people[i]);
+                threads[i].start();
+            }
+            for (int i = numOfPeople - 1; i >= numOfFemale; i--) {
+                threads[i] = new Thread(people[i]);
+                threads[i].start();
+            }
+            log("End case 3");
         }
     }
 
@@ -111,7 +134,6 @@ class Female extends People {
             say(String.format("%s: Failed during brushing my teeth", this.toString()));
             e.printStackTrace();
         }
-        say(String.format("%s is leaving bathroom.", this.toString()));
         this.bathroom.leaveFemale();
         say(String.format("%s left bathroom.", this.toString()));
 
@@ -134,7 +156,6 @@ class Male extends People {
             say(String.format("%s: Failed during brushing my teeth", this.toString()));
             e.printStackTrace();
         }
-        say(String.format("%s is leaving bathroom.", this.toString()));
         this.bathroom.leaveMale();
         say(String.format("%s left bathroom.", this.toString()));
     }
