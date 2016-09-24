@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 
 public class TestBathroomProtocol {
 
@@ -15,8 +17,10 @@ public class TestBathroomProtocol {
         public void run() {
             for (;;) {
                 protocol.enterFemale();
+                System.out.printf("Female entered.\n");
                 brushTeeth();
                 protocol.leaveFemale();
+                System.out.printf("Female left.\n");
             }
         }
     }
@@ -35,17 +39,22 @@ public class TestBathroomProtocol {
         public void run() {
             for (;;) {
                 protocol.enterMale();
+                System.out.printf("Male entered.\n");
                 brushTeeth();
                 protocol.leaveMale();
+                System.out.printf("Male left.\n");
             }
         }
     }
 
     public static void main(String[] args) {
 
-        BathroomProtocol protocol = new LockBathroomProtocol();
+        LockBathroomProtocol lock_proto = new LockBathroomProtocol();
+        SyncBathroomProtocol sync_proto = new SyncBathroomProtocol();
+        System.out.println(Arrays.toString(args));
+        BathroomProtocol protocol = args.length > 0? lock_proto : sync_proto;
 
-        int numberThreads = 4;
+        int numberThreads = 8;
 
         for(int i = 0; i < numberThreads; i++) {
             Runnable r = i % 2 == 0? new MaleRunnable(protocol) : new FemaleRunnable(protocol);
