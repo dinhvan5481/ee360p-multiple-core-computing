@@ -1,7 +1,17 @@
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class TestBathroomProtocol {
+
+    static class TestStats {
+        // Counts females
+        public static AtomicInteger females = new AtomicInteger(0);
+        // Counts males
+        public static AtomicInteger males = new AtomicInteger(0);
+        // Counts both.
+        public static AtomicInteger people = new AtomicInteger(0); 
+    }
 
     static class FemaleRunnable implements Runnable {
         BathroomProtocol protocol;
@@ -17,10 +27,15 @@ public class TestBathroomProtocol {
         public void run() {
             for (;;) {
                 protocol.enterFemale();
-                System.out.printf("Female entered.\n");
+                int fem = TestStats.females.incrementAndGet();
+                int peo = TestStats.people.incrementAndGet();
+                System.out.printf("Female entered. \t F: %d, P: %d\n", fem, peo);
+                assert(fem == peo); // There should be only females at any given time.
                 brushTeeth();
                 protocol.leaveFemale();
-                System.out.printf("Female left.\n");
+                fem = TestStats.females.decrementAndGet();
+                peo = TestStats.people.decrementAndGet();
+                System.out.printf("Female left. \t\t F: %d, P: %d\n", fem, peo);
             }
         }
     }
@@ -39,10 +54,20 @@ public class TestBathroomProtocol {
         public void run() {
             for (;;) {
                 protocol.enterMale();
-                System.out.printf("Male entered.\n");
+                // Testing
+                int mal = TestStats.males.incrementAndGet();
+                int peo = TestStats.people.incrementAndGet();
+                System.out.printf("Male entered. \t\t M: %d, P: %d\n", mal, peo);
+
+                // if there are people they should be only males.
+                assert  mal == peo;
                 brushTeeth();
                 protocol.leaveMale();
-                System.out.printf("Male left.\n");
+
+                // Testing
+                mal = TestStats.males.decrementAndGet();
+                peo = TestStats.people.decrementAndGet();
+                System.out.printf("Male left. \t\t M: %d, P: %d\n", mal, peo);
             }
         }
     }
@@ -52,11 +77,19 @@ public class TestBathroomProtocol {
         LockBathroomProtocol lock_proto = new LockBathroomProtocol();
         SyncBathroomProtocol sync_proto = new SyncBathroomProtocol();
         System.out.println(Arrays.toString(args));
+        // Executes LockBathroomProtocol when executed with extra paramaters
+        // i.e.
+        // java TestBathroomProtocol Lock
+        //
+        // and executes SyncBathroomProtocol with NO parameters
+        // 
+        // java TestBathroomProtocol
         BathroomProtocol protocol = args.length > 0? lock_proto : sync_proto;
 
         int numberThreads = 8;
 
         for(int i = 0; i < numberThreads; i++) {
+            // 50-50 types of threads.
             Runnable r = i % 2 == 0? new MaleRunnable(protocol) : new FemaleRunnable(protocol);
             new Thread(r).start();
         }

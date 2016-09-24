@@ -14,17 +14,21 @@ public class LockBathroomProtocol implements BathroomProtocol {
 
     int males = 0;
     int females = 0;
+    int males_waiting = 0;
+    int females_waiting = 0;
 
     private Turn turn = Turn.FemaleIn;
 
     public void enterMale() {
         bathroom_lock.lock();
         try {
-            while(turn != Turn.MaleIn)
+            while(turn != Turn.MaleIn || females > 0) {
+                males_waiting++;
                 maleTurn.await();
-
+                males_waiting--;
+            }
             males++;
-            System.out.printf("Male entered. (M: %d, F: %d)\n", males, females);
+            maleTurn.signal();
         } catch(InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -36,14 +40,14 @@ public class LockBathroomProtocol implements BathroomProtocol {
         bathroom_lock.lock();
         try {
             males--;
-            System.out.printf("Male left. (M: %d, F: %d)\n",  males, females);
-            if(males == 0) {
-                turn = Turn.FemaleIn;
-                femaleTurn.signalAll(); // Let the females know
-            } else {
-                // Once the first one leaves, no more males entering.
+            if(females_waiting > 0) {
                 turn = Turn.MaleOut;
-                maleTurn.signal(); // There might still be somebody trying to get out.
+                if (males == 0) {
+                    turn = Turn.FemaleIn;
+                    femaleTurn.signal();
+                }
+            } else if (females_waiting == 0) {
+                turn = Turn.MaleIn;
             }
         } finally {
             bathroom_lock.unlock();
@@ -52,12 +56,16 @@ public class LockBathroomProtocol implements BathroomProtocol {
 
     public void enterFemale() {
         bathroom_lock.lock();
+        
         try {
-            while(turn != Turn.FemaleIn)
+            while (turn != Turn.FemaleIn || males > 0) {
+                females_waiting++;
                 femaleTurn.await();
-            
+                females_waiting--;
+            }
+
             females++;
-            System.out.printf("Female entered. (M: %d, F: %d)\n", males, females);
+            femaleTurn.signal();
         } catch(InterruptedException e) {
             e.printStackTrace();
         }finally {
@@ -69,13 +77,14 @@ public class LockBathroomProtocol implements BathroomProtocol {
         bathroom_lock.lock();
         try {
             females--;
-            System.out.printf("Female left. (M: %d, F: %d)\n", males, females);
-            if(females == 0) {
-                turn = Turn.MaleIn;
-                maleTurn.signalAll(); // Let the males know
-            } else {
+            if(males_waiting > 0) {
                 turn = Turn.FemaleOut;
-                femaleTurn.signal(); // There might be more females inside.
+                if (females == 0) {
+                    turn = Turn.MaleIn;
+                    maleTurn.signal();
+                }
+            } else if (males_waiting == 0) {
+                turn = Turn.FemaleIn;
             }
         } finally {
             bathroom_lock.unlock();
