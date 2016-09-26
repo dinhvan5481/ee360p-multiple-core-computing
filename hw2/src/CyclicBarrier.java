@@ -7,13 +7,10 @@ import java.util.concurrent.Semaphore;
 public class CyclicBarrier {
     int parties = 0;
     Semaphore mulex = new Semaphore(1);
-    Semaphore permits;
     Semaphore lock = new Semaphore (0);
 
     public CyclicBarrier(int parties) {
-        // TODO: The constructor for this CyclicBarrier
         this.parties = parties;
-        permits = new Semaphore (0);
     }
 
     public int await() throws InterruptedException {
