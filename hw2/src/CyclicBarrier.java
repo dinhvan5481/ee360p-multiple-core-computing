@@ -6,11 +6,14 @@ import java.util.concurrent.Semaphore;
 
 public class CyclicBarrier {
     int parties = 0;
+    int numRelease = 0;
     Semaphore mulex = new Semaphore(1);
+    Semaphore mulex2 = new Semaphore(1);
     Semaphore lock = new Semaphore (0);
 
     public CyclicBarrier(int parties) {
         this.parties = parties;
+        this.numRelease = parties;
     }
 
     public int await() throws InterruptedException {
@@ -23,9 +26,17 @@ public class CyclicBarrier {
 
             if (parties==0) {
                 lock.release(); //release lock
+                mulex2.acquire();
+                numRelease--;
+                mulex2.release();
             } else {
                 lock.acquire(); //wait before the last one has gone through
-                lock.release(); //release lock for the next thread
+                mulex2.acquire();
+                if (numRelease >0) {
+                    lock.release(); //release lock for the next thread
+                    numRelease--;
+                }
+                mulex2.release();
             }
         }
         return arrivalIndex;
