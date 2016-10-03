@@ -6,6 +6,7 @@ import java.util.concurrent.Semaphore;
 
 public class CyclicBarrier {
     int parties = 0;
+    int originalParties = 0;
     int numRelease = 0;
     Semaphore mulex = new Semaphore(1);
     Semaphore mulex2 = new Semaphore(1);
@@ -14,6 +15,7 @@ public class CyclicBarrier {
     public CyclicBarrier(int parties) {
         this.parties = parties;
         this.numRelease = parties;
+        this.originalParties = parties;
     }
 
     public int await() throws InterruptedException {
@@ -37,6 +39,11 @@ public class CyclicBarrier {
                     numRelease--;
                 }
                 mulex2.release();
+            }
+            
+            if (numRelease == 0) {
+                parties = originalParties;
+                numRelease = originalParties;
             }
         }
         return arrivalIndex;
