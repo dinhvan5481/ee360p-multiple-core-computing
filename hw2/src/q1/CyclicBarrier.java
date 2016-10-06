@@ -30,12 +30,17 @@ public class CyclicBarrier {
 
     if (parties - t == 0) {
         // Last thread.
-        ticket.set(0);
         barrier.release(t - 1); // Release the rest of the threads.
-        sem.release(parties); // Let other threads re-use this.
     } else {
         // If they are not the last they are going to block here.
         barrier.acquire();
+    }
+
+    int r = ticket.decrementAndGet();
+
+    if(r == 0) {
+        // Last to leave notifies the new batch to enter.
+        sem.release(parties);
     }
 
     return parties - t;

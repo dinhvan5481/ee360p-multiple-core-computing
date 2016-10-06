@@ -18,7 +18,7 @@ public class TestBarrier {
             try {
             for(;;) {
                 System.out.printf("%d wait before entering\n", Thread.currentThread().getId());
-                Thread.sleep(r.nextInt(5000));
+                Thread.sleep(r.nextInt(50));
                 int ticket = barrier.await();
                 System.out.printf("%d waited at the barrier with ticket: %d\n", Thread.currentThread().getId(), ticket);
             }
@@ -30,8 +30,14 @@ public class TestBarrier {
 
     public static void main(String[] args) {
 
-        int barrierSize = 3;
-        int numberOfThreads = 5;
+        int barrierSize = 4;
+        int numberOfThreads = 4;
+
+        if (args.length == 2) {
+            barrierSize = Integer.parseInt(args[0]);
+            numberOfThreads = Integer.parseInt(args[1]);
+        }
+
         CyclicBarrier barrier = new CyclicBarrier(barrierSize);
 
 
