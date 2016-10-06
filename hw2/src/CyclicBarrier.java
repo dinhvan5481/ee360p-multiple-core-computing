@@ -11,14 +11,17 @@ public class CyclicBarrier {
     Semaphore mulex = new Semaphore(1);
     Semaphore mulex2 = new Semaphore(1);
     Semaphore lock = new Semaphore (0);
+    Semaphore extra;
 
     public CyclicBarrier(int parties) {
         this.parties = parties;
         this.numRelease = parties;
         this.originalParties = parties;
+        this.extra = new Semaphore (parties);
     }
 
     public int await() throws InterruptedException {
+        extra.acquire();
         int arrivalIndex = parties;
         if (parties > 0){
             mulex.acquire(); //for mutual exclusion while changing the index
@@ -44,6 +47,7 @@ public class CyclicBarrier {
             if (numRelease == 0) {
                 parties = originalParties;
                 numRelease = originalParties;
+                extra.release(parties);
             }
         }
         return arrivalIndex;
