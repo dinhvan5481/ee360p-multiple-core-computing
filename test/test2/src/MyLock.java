@@ -30,6 +30,7 @@ public class MyLock {
         while (!isSafeToGetIn(ThreadType.Thread1)) {
             roomReady.await();
         }
+        occupyingThreadType = ThreadType.Thread1;
         threadCounter++;
     }
 
@@ -37,6 +38,7 @@ public class MyLock {
         while (!isSafeToGetIn(ThreadType.Thread2)) {
             roomReady.await();
         }
+        occupyingThreadType = ThreadType.Thread2;
         threadCounter++;
     }
 
