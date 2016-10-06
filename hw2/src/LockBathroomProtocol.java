@@ -18,15 +18,12 @@ public class LockBathroomProtocol implements BathroomProtocol {
         try {
             while (countFemale != 0) {
                 try {
-                    System.out.println("before male wait");
                     noFemales.await();
-                    System.out.println("after male wait");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             countMale++;
-            System.out.println("male enters");
         } finally {
             monitorLock.unlock();
         }
@@ -36,10 +33,8 @@ public class LockBathroomProtocol implements BathroomProtocol {
         monitorLock.lock();
         try {
             countMale--;
-            System.out.println("male leaves");
             if (countMale == 0) {
                 noMales.signalAll();
-                System.out.println("after notify when no males in the room");
             }
         } finally {
             monitorLock.unlock();
@@ -51,15 +46,12 @@ public class LockBathroomProtocol implements BathroomProtocol {
         try {
             while (countMale != 0) {
                 try {
-                    System.out.println("before female wait");
                     noMales.await();
-                    System.out.println("after female wait");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             countFemale++;
-            System.out.println("female enters");
         } finally {
             monitorLock.unlock();
         }
@@ -69,10 +61,8 @@ public class LockBathroomProtocol implements BathroomProtocol {
         monitorLock.lock();
         try {
             countFemale--;
-            System.out.println("female leaves");
             if (countFemale == 0) {
                 noFemales.signalAll();
-                System.out.println("after notify when no female is in the room.");
             }
         } finally {
             monitorLock.unlock();
