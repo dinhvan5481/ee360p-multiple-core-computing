@@ -1,3 +1,5 @@
+package van;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -62,14 +64,14 @@ public class SimpleTest {
 
     public static void main(String[] args) {
         int numOfParties = 50;
-        int numOfThreads = 2 * numOfParties - 2;
+        int numOfThreads = 2 * numOfParties + 2;
         Thread[] threads = new Thread[numOfThreads];
         CyclicBarrier cyclicBarrier = new CyclicBarrier(numOfParties);
         boolean[] inCSMark = new boolean[numOfParties];
         int WAITING_TIME_OUT_ms = 100;
         AtomicInteger threadCounter = new AtomicInteger(0);
 
-        if(false) {
+        if(true) {
             log("Case 1: When waiting threads = number of parties");
             for (int i = 0; i < numOfParties; i++) {
                 threads[i] = new Thread(new Task(cyclicBarrier, threadCounter, inCSMark, numOfParties), String.format("Thread %d", i));
@@ -88,7 +90,7 @@ public class SimpleTest {
 
         if(true) {
             log("Case 2: When waiting threads more than number of parties");
-            for (int runCounter = 0; runCounter < 100; runCounter++) {
+            for (int runCounter = 0; runCounter < 1000; runCounter++) {
                 log(String.format("Start Run %d times", runCounter));
                 for(int i = 0; i < numOfThreads; i++) {
                     threads[i] = new Thread(new Task(cyclicBarrier, threadCounter, inCSMark, numOfParties), String.format("Thread %d", i));
