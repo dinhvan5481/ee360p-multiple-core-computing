@@ -21,7 +21,7 @@ public class Bridge {
     }
 
     public synchronized void arriveBridge(int direction) throws InterruptedException {
-        while (numCarOnBridge > 0 && currentDirection != direction) {
+        while (isSafeToCross(direction)) {
             waitForDirectionClearCond.await();
         }
         currentDirection = direction;
