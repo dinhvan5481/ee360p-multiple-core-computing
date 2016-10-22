@@ -1,0 +1,60 @@
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * Created by andy on 10/21/16.
+ */
+
+class Node<T> {
+   T data;
+   Node next;
+
+    Node (T data) {
+        this.data = data;
+    }
+}
+
+public class LockBaseQueue<T> {
+    Node<T> head;
+    Node<T> tail;
+    AtomicInteger count = new AtomicInteger(0);
+
+    final ReentrantLock enqLock = new ReentrantLock ();
+    final ReentrantLock deqLock = new ReentrantLock ();
+    Semaphore deqBlock = new Semaphore (0);
+
+    public LockBaseQueue() {
+        head = new Node<T>(null);
+        tail = head;
+    }
+
+    public void enqueue (T obj) throws InterruptedException {
+        if (obj == null) throw new NullPointerException();
+        Node<T> newNode = new Node<T>(obj);
+        enqLock.lock();
+        try {
+            tail.next = newNode;
+            tail = newNode;
+            count.incrementAndGet();
+            deqBlock.release();
+        } finally {
+            enqLock.unlock();
+        }
+    }
+
+    public T dequeue() throws InterruptedException {
+        T result;
+        deqLock.lock();
+        try {
+            deqBlock.acquire();
+            result = (T) head.next.data;
+            head = head.next;
+            count.decrementAndGet();
+        } finally {
+            deqLock.unlock();
+        }
+        return result;
+    }
+}
