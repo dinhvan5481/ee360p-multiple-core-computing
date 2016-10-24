@@ -1,0 +1,106 @@
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * Created by andy on 10/24/16.
+ */
+public class CoarseConcurrentLinkedList {
+
+    private static class Node {
+        int data;
+        Node next;
+
+        Node () {}
+
+        Node(int data) {
+            this.data = data;
+        }
+    }
+
+    private static final ReentrantLock lock = new ReentrantLock ();
+    private Condition isNotEmpty = lock.newCondition();
+
+    private Node head; //variable belongs to this instantiation of class
+    private Node tail;
+
+    public CoarseConcurrentLinkedList(){
+        head = tail = new Node();
+    }
+
+    //true if x is not in the list and is added, false if it is already added
+    boolean add(int x){
+        Node newNode = new Node(x);
+        lock.lock();
+        try {
+            for (Node i = head.next; i != null; i=i.next){
+                if (i.data == newNode.data) {
+                    return false;
+                }
+            }
+
+            for (Node i = head; i != null; i=i.next) {
+                if (i.next != null) { //if it's not the last element
+                    if (i.next.data > newNode.data) { //check the next element against the newNode
+                        newNode.next = i.next; //insert
+                        i.next = newNode;
+                        isNotEmpty.signal();
+                        return true;
+                    }
+                }
+            }
+
+            tail.next = newNode;
+            tail = newNode;
+            isNotEmpty.signal();
+            return true;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    //true if x is in the list and is removed, false if it is not in the list
+    boolean remove (int x) {
+        lock.lock();
+        while (head.next == null) {
+            try {
+                isNotEmpty.await(); //wait until a new node is added
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            for (Node i = head; i != null; i=i.next) {
+                if (i.next != null) { //if it's not the last element
+                    if (i.next.data == x) { //check if the next element is x
+                        if (i.next.next != null) { //check if node contain x is the last node
+                            i.next = i.next.next;
+                        } else {
+                            i.next = null;
+                            tail = i;
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false; // can not find the element to remove
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    //returns true if x is in the list
+    boolean contains (int x) {
+        lock.lock();
+        try {
+            for (Node i = head.next; i != null; i = i.next) {
+                if (i.data == x) {
+                    return true;
+                }
+            }
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
