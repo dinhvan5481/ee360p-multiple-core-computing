@@ -1,0 +1,48 @@
+/**
+ * Created by andy on 10/22/16.
+ */
+public class Line implements Runnable {
+
+    LockFreeQueue queue;
+    public Line (LockFreeQueue queue){
+        this.queue = queue;}
+
+    public void run() {
+        try {
+            System.out.println("From first thread: " + queue.dequeue());
+            queue.enqueue("United");
+           System.out.println("From first thread: " + queue.dequeue());
+            System.out.println("From first thread: " + queue.dequeue());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main (String[] args) {
+        LockFreeQueue queue = new LockFreeQueue();
+        Line l1 = new Line(queue);
+        Line2 l2 = new Line2(queue);
+        Thread t1 = new Thread(l1);
+        Thread t2 = new Thread(l2);
+        t1.start();
+        t2.start();
+    }
+}
+
+class Line2 implements Runnable {
+    LockFreeQueue queue;
+    public Line2(LockFreeQueue queue) {
+        this.queue = queue;
+    }
+
+    public void run() {
+        try {
+            queue.enqueue("Hello");
+            queue.enqueue("World");
+            System.out.println("From second thread: " + queue.dequeue()); //could be false when empty
+            queue.enqueue("States");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
