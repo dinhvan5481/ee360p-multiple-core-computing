@@ -1,54 +1,75 @@
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
+
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * Created by andy on 10/22/16.
  */
 
-class Node<T> {
-    T data;
-    Node next;
-
-    Node (T data) {
-        this.data = data;
-    }
-}
-
 public class LockFreeQueue<T> {
-    Node<T> head;
-    Node<T> tail;
+    private static class Node<T> {
+        volatile T data;
+        volatile Node<T> next;
 
-    public LockFreeQueue() {
-        head = new Node<T>(null);
-        tail = head;
+        Node (T data) {
+            this.data = data;
+        }
+
+        private static final AtomicReferenceFieldUpdater<Node, Node> nextUpdater = AtomicReferenceFieldUpdater.newUpdater(Node.class, Node.class, "next");
+        boolean compareAndSetNext (Node<T> expect, Node<T> update){
+            return nextUpdater.compareAndSet(this, expect, update);
+        }
+
+    }
+
+    private transient volatile AtomicReference<Node<T>> head;
+    private transient volatile AtomicReference<Node<T>> tail;
+
+    public LockFreeQueue(){
+        head = new AtomicReference<>();
+        tail = new AtomicReference<>();
+        Node<T> dummy = new Node<T>(null);
+        head.set(dummy);
+        tail.set(dummy);
     }
 
     public void enqueue (T obj) throws InterruptedException {
         if (obj == null) throw new NullPointerException();
-        Node<T> newNode = new Node<T>(obj);
+        final Node<T> newNode = new Node<T>(obj);
+
         while (true){
-            if (tail.next==null) {
-                tail.next = newNode; //set reference to the new node
-                break;
-            } else {
-                tail = tail.next; //move the tail to the last node
+            Node<T> t = tail.get();
+            Node<T> next = t.next;
+            if (t == tail.get()) {
+                if (next == null) {
+                    if (t.compareAndSetNext(null, newNode)) { //link tail.next to the new node
+                        tail.compareAndSet(t,newNode);  //move the tail to the last node
+                        break;
+                    }
+                } else {
+                    tail.compareAndSet(t,next); //move the tail further to the end
+                }
             }
         }
-        tail = newNode; //set tail to the new node
     }
 
-    public boolean dequeue() throws InterruptedException {
+    public Boolean dequeue() throws InterruptedException {
         while (true) {
-            if (head == tail){ //is queue empty or tail is falling behind
-                if (head.next == null){ //is queue empty
-                    return false; //queue is empty
+            Node<T> h = head.get();
+            Node<T> t = tail.get();
+            Node<T> next = h.next;
+            if (h == head.get()){
+                if (h == t){ //is queue empty or tail is falling behind
+                    if (next == null){ //is queue empty
+                        return false; //queue is empty
+                    } else {
+                        tail.compareAndSet(t, next); //tail is falling behind, move the tail to the next node
+                    }
                 } else {
-                    tail = tail.next; //tail is falling behind, move the tail to the next node
+                    if(head.compareAndSet(h,next)){
+                        break;//move head to the next node
+                    }
                 }
-            } else {
-                head = head.next; //swing head to the next node
-                break;
             }
         }
         return true;
