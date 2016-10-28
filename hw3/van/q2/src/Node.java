@@ -3,7 +3,6 @@
  */
 class Node {
     private int data;
-    private Node prev;
     private Node next;
 
     public Node() {
@@ -21,15 +20,8 @@ class Node {
         this.next = next;
     }
 
-    public void setPrev(Node prev) {
-        this.prev = prev;
-    }
-
     public Node getNext() {
         return this.next;
     }
 
-    public Node getPrev() {
-        return this.prev;
-    }
 }
