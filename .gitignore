@@ -1,4 +1,15 @@
 out
-*.class
 .idea
 *.iml
+
+# Java binaries
+*.class
+
+# VSCde
+.vscode
+
+# Output files
+*.o, *.out
+
+# Input files
+*.in
