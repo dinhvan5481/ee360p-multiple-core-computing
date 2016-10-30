@@ -9,7 +9,8 @@ out
 .vscode
 
 # Output files
-*.o, *.out
+*.o
+*.out
 
 # Input files
 *.in
