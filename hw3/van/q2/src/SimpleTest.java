@@ -1,6 +1,3 @@
-import sun.jvm.hotspot.runtime.Threads;
-
-import java.lang.management.ThreadMXBean;
 import java.util.Random;
 
 /**
@@ -62,6 +59,7 @@ class TestRunner implements Runnable {
                 int data = this.numGen.nextInt(max - min) + min;
                 log("Prepare to add");
                 if(this.sut.add(data)) {
+                    log("Prepare to check contains");
                    if(!this.sut.contains(data)) {
                        log(String.format("Error while adding %d: the list not contain the value after added", data));
                    }

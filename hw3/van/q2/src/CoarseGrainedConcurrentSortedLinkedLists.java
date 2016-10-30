@@ -77,20 +77,20 @@ public class CoarseGrainedConcurrentSortedLinkedLists extends BaseConcurrentSort
     }
 
     public boolean contains(int x) {
-        boolean result = false;
         mutex.lock();
         try {
             Node curr = head.getNext();
-            while (curr != tail && curr.getData() <= x) {
-                if(curr.getData() == x) {
-                    result = true;
-                } else {
+            while (curr != tail && curr.getData() < x) {
                     curr = curr.getNext();
-                }
             }
+            if(curr.getData() == x) {
+                return true;
+            } else {
+                return false;
+            }
+
         } finally {
             mutex.unlock();
-            return result;
         }
     }
 

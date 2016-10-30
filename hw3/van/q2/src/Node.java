@@ -6,10 +6,12 @@ class Node {
     private Node next;
 
     public Node() {
+        this.next = null;
 
     }
     public Node(int data) {
         this.data = data;
+        this.next = null;
     }
 
     public int getData() {
