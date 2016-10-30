@@ -3,7 +3,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 // Lock-free Linked list
-public class UnlockedQueue {
+public class LockFreeQueue implements MyQueue {
 
     static class Node {
         int value;
@@ -19,7 +19,7 @@ public class UnlockedQueue {
     AtomicReference<Node> tail;
     AtomicInteger count;
 
-    public UnlockedQueue() {
+    public LockFreeQueue() {
         Node node = new Node(Integer.MIN_VALUE);
         head = new AtomicReference<Node>(node);
         tail = new AtomicReference<Node>(node);
@@ -30,7 +30,7 @@ public class UnlockedQueue {
         return count.get();
     }
 
-    public void enq(int x) {
+    public boolean enq(int x) {
         Node node = new Node(x);
         Node qtail;
         for (;;) { // Try until is done.
@@ -48,10 +48,14 @@ public class UnlockedQueue {
         }
         tail.compareAndSet(qtail, node);
         count.incrementAndGet();
+        return true;
     }
 
-    // False if queue is empty.
-    public boolean deq() {
+    /*
+    * Returns the removed integer, or null if list is empty.         
+    */
+    public Integer deq() {
+        int dequeuedValue = 0;
         for (;;) {
             Node headPointer = head.get();
             Node tailPointer = tail.get();
@@ -60,11 +64,11 @@ public class UnlockedQueue {
             if(headPointer == head.get()) {
                 if(headPointer == tailPointer) {
                     if(next == null) {
-                        return false;
+                        return null;
                     }
                     tail.compareAndSet(tailPointer, next);
                 } else {
-                    int value = next.value;
+                    dequeuedValue = next.value;
                     if(head.compareAndSet(headPointer, next)){
                         break;
                     }
@@ -72,6 +76,6 @@ public class UnlockedQueue {
             }
         }
         count.decrementAndGet();
-        return true;
+        return dequeuedValue;
     }
 }

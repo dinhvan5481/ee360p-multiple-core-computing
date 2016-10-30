@@ -6,9 +6,9 @@ public class TestQueue {
 
     static class TestQueueProducer extends Thread {
 
-        LockedQueue queue;
+        MyQueue queue;
 
-        public TestQueueProducer(LockedQueue queue) {
+        public TestQueueProducer(MyQueue queue) {
             this.queue = queue;
         }
         
@@ -17,7 +17,7 @@ public class TestQueue {
                 try {
                     int time = r.nextInt(1000);
                     System.out.printf("[P] Sleeping for %d\n", time);
-                    Thread.sleep(r.nextInt(1000));
+                    Thread.sleep(time);
                 } catch (InterruptedException e) { }
 
                 int number = r.nextInt(1000);
@@ -29,9 +29,9 @@ public class TestQueue {
 
     static class TestQueueConsumer extends Thread {
 
-        LockedQueue queue;
+        MyQueue queue;
 
-        public TestQueueConsumer(LockedQueue queue) {
+        public TestQueueConsumer(MyQueue queue) {
             this.queue = queue;
         }
 
@@ -44,7 +44,7 @@ public class TestQueue {
                     Thread.sleep(time);
                 } catch (InterruptedException e) { }
 
-                int number = queue.deq();
+                Integer number = queue.deq();
                 System.out.printf("[C] dequeued %d\n", number);
             }
 
@@ -54,13 +54,21 @@ public class TestQueue {
 
     public static void main(String[] args) {
 
-        LockedQueue lockedQueue = new LockedQueue();
+        MyQueue lockedQueue = new LockQueue();
 
         TestQueueConsumer consumer = new TestQueueConsumer(lockedQueue);
         TestQueueProducer producer = new TestQueueProducer(lockedQueue);
 
         consumer.start();
         producer.start();
+
+        MyQueue lockFreeQueue = new LockFreeQueue();
+
+        TestQueueConsumer lockFreeConsumer = new TestQueueConsumer(lockFreeQueue);
+        TestQueueProducer lockFreeProducer = new TestQueueProducer(lockFreeQueue);
+
+        lockFreeConsumer.start();
+        lockFreeProducer.start();
 
     }
 }

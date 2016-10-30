@@ -2,7 +2,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 // Lock-based linked list
-public class LockedQueue {
+public class LockQueue implements MyQueue {
 
     static class Node {
         int value;
@@ -19,7 +19,7 @@ public class LockedQueue {
     final Node root = new Node(Integer.MIN_VALUE);
     AtomicInteger queueLength = new AtomicInteger(0);
 
-    public LockedQueue() {
+    public LockQueue() {
         root.next = root;
     }
 
@@ -27,7 +27,7 @@ public class LockedQueue {
         return queueLength.get();
     }
 
-    public void enq(int x) {
+    public boolean enq(int x) {
         Node enqNode = new Node(x);
         synchronized (enqLock) {
             Node next = root.next;
@@ -40,10 +40,11 @@ public class LockedQueue {
         }
 
         queueLength.incrementAndGet();
+        return true;
     }
 
     // Blocks if queue is empty.
-    public int deq() {
+    public Integer deq() {
         int dequeued;
         synchronized (deqLock) {
             while(count() == 0) {
