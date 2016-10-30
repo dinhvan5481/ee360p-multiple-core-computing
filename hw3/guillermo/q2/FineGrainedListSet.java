@@ -1,7 +1,7 @@
 
 
 // Sorted linked list of integers.
-public class FineLinkedList implements SortedLinkedList {
+public class FineGrainedListSet implements ListSet {
 
     private static class Node {
         int value;
@@ -15,7 +15,7 @@ public class FineLinkedList implements SortedLinkedList {
 
     final Node root = new Node(Integer.MIN_VALUE);
 
-    public FineLinkedList() {
+    public FineGrainedListSet() {
         root.next = root;
     }
 

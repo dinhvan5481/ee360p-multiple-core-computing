@@ -1,7 +1,7 @@
 /*
 * Sorted linked list of integers.
 */
-public interface SortedLinkedList {
+public interface ListSet {
 
     /* 
     * returns true if x was not in the list and was added to the list; otherwise, it returns false

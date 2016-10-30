@@ -6,10 +6,10 @@ public class TestList {
 
     static class TestListRunner extends Thread {
 
-        SortedLinkedList list;
+        ListSet list;
         int seed;
 
-        public TestListRunner(SortedLinkedList list, int seed) {
+        public TestListRunner(ListSet list, int seed) {
             this.list = list;
             this.seed = seed;
         }
@@ -57,7 +57,7 @@ public class TestList {
         }
     }
 
-    public static void runTests(SortedLinkedList list, int numberOfThreads) {
+    public static void runTests(ListSet list, int numberOfThreads) {
         TestListRunner[] runners = new TestListRunner[numberOfThreads];
 
         System.out.printf("Testing list %s with %d threads.\n", list.getClass().getName(), numberOfThreads);
@@ -83,15 +83,15 @@ public class TestList {
 
     public static void main(String[] args){
 
-        runTests(new FineLinkedList(), 1);
-        runTests(new FineLinkedList(), 2);
-        runTests(new FineLinkedList(), 4);
-        runTests(new FineLinkedList(), 8);
+        runTests(new FineGrainedListSet(), 1);
+        runTests(new FineGrainedListSet(), 2);
+        runTests(new FineGrainedListSet(), 4);
+        runTests(new FineGrainedListSet(), 8);
 
-        runTests(new CoarsedLinkedList(), 1);
-        runTests(new CoarsedLinkedList(), 2);
-        runTests(new CoarsedLinkedList(), 4);
-        runTests(new CoarsedLinkedList(), 8);
+        runTests(new CoarseGrainedListSet(), 1);
+        runTests(new CoarseGrainedListSet(), 2);
+        runTests(new CoarseGrainedListSet(), 4);
+        runTests(new CoarseGrainedListSet(), 8);
         
     }
 }

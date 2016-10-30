@@ -1,7 +1,7 @@
 import java.lang.StringBuffer;
 
 // Sorted linked list of integers.
-public class CoarsedLinkedList implements SortedLinkedList {
+public class CoarseGrainedListSet implements ListSet {
 
     private static class Node {
         int value;
@@ -15,7 +15,7 @@ public class CoarsedLinkedList implements SortedLinkedList {
 
     final Node root = new Node(Integer.MIN_VALUE);
 
-    public CoarsedLinkedList() {
+    public CoarseGrainedListSet() {
         root.next = root;
     }
 
