@@ -15,25 +15,15 @@ public class CoarseGrainedConcurrentSortedLinkedLists extends BaseConcurrentSort
         mutex.lock();
         try {
             Node newNode = new Node(x);
-            Node curr = this.head.getNext();
-            if(curr == tail) {
-                //TODO: trying use single linked list, if switch to double linked list, need to modified this
-                newNode.setNext(this.tail);
-                this.head.setNext(newNode);
-                return true;
-            }
-
-            if(curr.getData() == x) {
-                return false;
-            }
+            Node curr = this.head;
 
             while (curr.getNext() != tail && curr.getNext().getData() < x) {
                 curr = curr.getNext();
             }
 
             if(curr.getNext() == tail || curr.getNext().getData() != x) {
-                curr.setNext(newNode);
                 newNode.setNext(curr.getNext());
+                curr.setNext(newNode);
                 return true;
             }
 

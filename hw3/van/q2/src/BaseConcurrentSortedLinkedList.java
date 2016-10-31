@@ -20,6 +20,7 @@ public abstract class BaseConcurrentSortedLinkedList implements SortedLinkedList
         Node curr = this.head.getNext();
         while (curr != tail) {
             results.append(String.format("%d : ", curr.getData()));
+            curr = curr.getNext();
         }
         if(results.length() > 1) {
             results.setLength(results.length() - 3);

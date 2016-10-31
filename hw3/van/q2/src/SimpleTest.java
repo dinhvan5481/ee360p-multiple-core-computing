@@ -8,7 +8,7 @@ public class SimpleTest {
         final int numThreads = 1;
         final int numNodes = 10;
         final int max = 100;
-        final int min = 0;
+        final int min = 1;
         final Thread[] threads = new Thread[numThreads];
 
         log("Case 1: happy path");
@@ -54,12 +54,11 @@ class TestRunner implements Runnable {
 
     @Override
     public void run() {
+        int data = 0;
         if(this.op == OperationType.Add) {
             for (int i = 0; i < this.numNodes; i++) {
-                int data = this.numGen.nextInt(max - min) + min;
-                log("Prepare to add");
+                data = this.numGen.nextInt(max - min) + min;
                 if(this.sut.add(data)) {
-                    log("Prepare to check contains");
                    if(!this.sut.contains(data)) {
                        log(String.format("Error while adding %d: the list not contain the value after added", data));
                    }
@@ -69,6 +68,13 @@ class TestRunner implements Runnable {
                     }
 
                 }
+                if(!((BaseConcurrentSortedLinkedList)this.sut).isInASCOrder()) {
+                    log("Error: the array is not in ASC order");
+                    log(this.sut.toString());
+                }
+            }
+            if(this.sut.add(data)) {
+                log("Faled. Should return false;");
             }
         }
 
