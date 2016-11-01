@@ -73,8 +73,16 @@ class TestRunner implements Runnable {
                     log(this.sut.toString());
                 }
             }
+            log(String.format("Last data: %d", data));
             if(this.sut.add(data)) {
-                log("Faled. Should return false;");
+                log("Faled. Should return false");
+            }
+            if(!this.sut.remove(data)) {
+                log("Faled. Should return true when remove existing data");
+            } else {
+                if(this.sut.contains(data)) {
+                    log("Faled. Should return true when remove existing data");
+                }
             }
         }
 

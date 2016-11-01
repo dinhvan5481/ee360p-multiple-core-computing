@@ -36,31 +36,19 @@ public class CoarseGrainedConcurrentSortedLinkedLists extends BaseConcurrentSort
     public boolean remove(int x) {
         mutex.lock();
         try {
-            Node curr = this.head.getNext();
-            if(curr == tail) {
-                return false;
-            }
-
-            if(curr.getData() == x) {
-                this.head.setNext(curr.getNext());
-            }
+            Node curr = this.head;
 
             while (curr.getNext() != tail && curr.getNext().getData() < x) {
                 curr = curr.getNext();
             }
-
             if(curr.getNext() == tail) {
                 return false;
             }
-
             if(curr.getNext().getData() == x) {
-                Node temp = curr.getNext();
                 curr.setNext(curr.getNext().getNext());
-                temp = null;
                 return true;
             }
             return false;
-
         } finally {
             mutex.unlock();
         }
