@@ -7,12 +7,56 @@ public class FineGrainedConcurrentSortedLinkedList extends BaseConcurrentSortedL
     }
     @Override
     public boolean add(int x) {
-        return false;
+        Node newNode = new Node(x);
+        Node prev = this.head;
+        while (true) {
+            synchronized (prev) {
+                while (prev.getNext() != tail && prev.getNext().getData() < x) {
+                    prev = prev.getNext();
+                }
+                if (prev.getNext() == tail || prev.getNext().getData() != x) {
+                    Node succ = prev.getNext();
+                    synchronized (succ) {
+                        if (succ.getIsDeleted() || prev.getIsDeleted() || prev.getNext() != succ) {
+                            prev = this.head;
+                            continue;
+                        }
+                        newNode.setNext(succ);
+                        prev.setNext(newNode);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
     }
 
     @Override
     public boolean remove(int x) {
-        return false;
+        Node prev = this.head;
+        while (true) {
+            synchronized (prev) {
+                while (prev.getNext() != tail && prev.getNext().getData() < x) {
+                    prev = prev.getNext();
+                }
+                if(prev.getNext() == tail) {
+                    return false;
+                }
+                if(prev.getNext().getData() == x) {
+                    Node curr = prev.getNext();
+                    synchronized (curr) {
+                        if(prev.getIsDeleted() || curr.getIsDeleted() || prev.getNext() != curr) {
+                            prev = this.head;
+                            continue;
+                        }
+                        curr.setDeleted(true);
+                        prev.setNext(curr.getNext());
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
     }
 
     @Override
