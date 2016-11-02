@@ -3,15 +3,17 @@
  */
 class Node {
     private int data;
+    private boolean isDeleted;
     private Node next;
 
     public Node() {
         this.next = null;
-
+        this.isDeleted = false;
     }
     public Node(int data) {
         this.data = data;
         this.next = null;
+        this.isDeleted = false;
     }
 
     public int getData() {
@@ -26,4 +28,11 @@ class Node {
         return this.next;
     }
 
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public boolean getIsDeleted() {
+        return this.isDeleted;
+    }
 }

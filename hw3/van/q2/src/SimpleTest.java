@@ -5,7 +5,7 @@ import java.util.Random;
  */
 public class SimpleTest {
     public static void main(String[] args) throws InterruptedException {
-        final int numThreads = 1;
+        final int numThreads = 10;
         final int numNodes = 10;
         final int max = 100;
         final int min = 1;
@@ -13,8 +13,13 @@ public class SimpleTest {
 
         log("Case 1: happy path");
         SortedLinkedList listUT = new CoarseGrainedConcurrentSortedLinkedLists();
-        TestRunner test = new TestRunner(listUT, numNodes, TestRunner.OperationType.Add, min, max);
-        test.run();
+        for (int i = 0; i < numThreads; i++) {
+            threads[i] = new Thread(new TestRunner(listUT, numNodes, TestRunner.OperationType.Add, min, max));
+            threads[i].start();
+        }
+        for (int i = 0; i < numThreads; i++) {
+            threads[i].join();
+        }
 
 
         if(!((BaseConcurrentSortedLinkedList)listUT).isInASCOrder()) {
