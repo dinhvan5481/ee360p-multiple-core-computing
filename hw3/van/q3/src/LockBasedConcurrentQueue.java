@@ -23,7 +23,8 @@ public class LockBasedConcurrentQueue extends BaseConcurrentQueue {
         headLock.lock();
         try {
             Node newNode = new Node(value);
-            newNode.setNext(this.head.getNext());
+            Node curHead = this.head.getNext();
+            curHead.setNext(newNode);
             this.head.setNext(newNode);
             this.count.incrementAndGet();
             this.emptyQueueCond.signalAll();
@@ -37,18 +38,18 @@ public class LockBasedConcurrentQueue extends BaseConcurrentQueue {
     public Integer deq() {
         tailLock.lock();
         try {
-            while (this.count.get() <= 0) {
+            while (this.count.get() == 0) {
                 emptyQueueCond.await();
             }
-
-
-
+            Node curTail = this.tail.getNext();
+            this.tail.setNext(curTail.getNext());
+            this.count.decrementAndGet();
+            return curTail.getValue();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             tailLock.unlock();
         }
-
         return null;
     }
 }
