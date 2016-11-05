@@ -105,9 +105,9 @@ int main(int argc, char **argv) {
                 start_time = clock();
                 mult_matrix(matrix1, m1_r, m1_c, matrix2, m2_r, m2_c, &m3);
                 end_time = clock();
-                time += end_time - start_time;
+                time = end_time - start_time;
+                printf("%d, %f\n", threads[thread_index], (float) (time) / CLOCKS_PER_SEC);
             }
-            printf("%d, %f\n", threads[thread_index], (float) (time) / CLOCKS_PER_SEC);
         }
     } else {
         omp_set_num_threads(thread_to_use);
