@@ -1,0 +1,52 @@
+/**
+ * Created by andy on 10/22/16.
+ */
+public class Line implements Runnable {
+
+    LockBaseQueue queue;
+    public Line (LockBaseQueue queue){
+        this.queue = queue;
+    }
+    public void run() {
+        try {
+            System.out.println("Thread 1 dequeue: " + queue.dequeue());
+            queue.enqueue("United");
+            System.out.println("United done");
+            System.out.println( "Thread 1 dequeue: " + queue.dequeue());
+            System.out.println( "Thread 1 dequeue: " + queue.dequeue());
+            System.out.println("Thread 1 dequeue: " + queue.dequeue());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main (String[] args){
+        LockBaseQueue queue = new LockBaseQueue();
+        Line l1 = new Line(queue);
+        Line2 l2 = new Line2(queue);
+        Thread t1 = new Thread(l1);
+        Thread t2 = new Thread(l2);
+        t1.start();
+        t2.start();
+    }
+}
+
+class Line2 implements Runnable {
+    LockBaseQueue queue;
+    public Line2(LockBaseQueue queue) {
+        this.queue = queue;
+    }
+
+    public void run() {
+        try {
+            queue.enqueue("Hello");
+            System.out.println("hello done");
+            queue.enqueue("World");
+            System.out.println("world done");
+            queue.enqueue("States");
+            System.out.println("States done");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
