@@ -5,16 +5,23 @@ import java.util.Random;
  */
 public class SimpleTest {
     public static void main(String[] args) throws InterruptedException {
-        final int numThreads = 10;
-        final int numNodes = 10;
-        final int max = 100;
+        final int numThreads = 4;
+        final int numThreadRemove = 2;
+        final int max = 500;
         final int min = 1;
+        final int numValues = 100;
+        final int numRun = 1000;
+        BagValues bagValues = new BagValues(min, max, numValues);
         final Thread[] threads = new Thread[numThreads];
 
         log("Case 1: happy path");
-        SortedLinkedList listUT = new CoarseGrainedConcurrentSortedLinkedLists();
-        for (int i = 0; i < numThreads; i++) {
-            threads[i] = new Thread(new TestRunner(listUT, numNodes, TestRunner.OperationType.Add, min, max));
+        SortedLinkedList listUT = new FineGrainedConcurrentSortedLinkedList();
+        for (int i = numThreadRemove; i < numThreads; i++) {
+            threads[i] = new Thread(new TestRunner(listUT, bagValues, TestRunner.OperationType.Add, numRun));
+            threads[i].start();
+        }
+        for (int i = 0; i < numThreadRemove; i++) {
+            threads[i] = new Thread(new TestRunner(listUT, bagValues, TestRunner.OperationType.Remove, numRun / 100));
             threads[i].start();
         }
         for (int i = 0; i < numThreads; i++) {
@@ -42,53 +49,44 @@ class TestRunner implements Runnable {
         Remove
     }
     private SortedLinkedList sut;
-    private int numNodes;
     private OperationType op;
-    private int min;
-    private int max;
-    private Random numGen;
+    private BagValues bagValues;
+    private int numRun;
 
-    public TestRunner(SortedLinkedList linkedList, int numNodes, OperationType op, int min, int max) {
+    public TestRunner(SortedLinkedList linkedList, BagValues bagValues, OperationType op, int numRun) {
         this.sut = linkedList;
-        this.numNodes = numNodes;
         this.op = op;
-        this.min = min;
-        this.max = max;
-        this.numGen = new Random();
+        this.bagValues = bagValues;
+        this.numRun = numRun;
     }
 
     @Override
     public void run() {
-        int data = 0;
         if(this.op == OperationType.Add) {
-            for (int i = 0; i < this.numNodes; i++) {
-                data = this.numGen.nextInt(max - min) + min;
+            log("Adding thread");
+            int data = 0;
+            for (int i = 0; i < this.numRun; i++) {
+                data = bagValues.getValueAndMarkAdded();
                 if(this.sut.add(data)) {
-                   if(!this.sut.contains(data)) {
-                       log(String.format("Error while adding %d: the list not contain the value after added", data));
-                   }
-                } else {
-                    if(!this.sut.contains(data)) {
-                        log(String.format("Error while adding %d: the list not contain the value even it said it has", data));
+                    if(!(this.sut.contains(data) && bagValues.isAdded(data))) {
+                        log(String.format("Maybe failed. Added %d, but not exist in the list. Posibly another thread remove it", data));
+                        log(sut.toString());
                     }
-
-                }
-                if(!((BaseConcurrentSortedLinkedList)this.sut).isInASCOrder()) {
-                    log("Error: the array is not in ASC order");
-                    log(this.sut.toString());
                 }
             }
-            log(String.format("Last data: %d", data));
-            if(this.sut.add(data)) {
-                log("Faled. Should return false");
-            }
-            if(!this.sut.remove(data)) {
-                log("Faled. Should return true when remove existing data");
-            } else {
+        } else if (this.op == OperationType.Remove) {
+            log("Removing thread");
+            int data = 0;
+            for (int i = 0; i < this.numRun; i++) {
+                data = bagValues.getValue();
                 if(this.sut.contains(data)) {
-                    log("Faled. Should return true when remove existing data");
+                    if(!this.sut.remove(data)) {
+                        log(String.format("Failed. Remove exist not success %d", data));
+                        log(sut.toString());
+                    }
                 }
             }
+
         }
 
     }
