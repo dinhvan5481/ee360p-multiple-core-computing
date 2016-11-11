@@ -2,3 +2,10 @@ out
 *.class
 .idea
 *.iml
+
+# Rust
+*/target
+Cargo.lock
+
+# VSCode
+.vscode
