@@ -1,0 +1,9 @@
+[package]
+name = "matrix_mult"
+version = "0.1.0"
+authors = ["Guillermo Leon <gleonoliva@gmail.com>"]
+
+[dependencies]
+rand="0.3.0"
+time="0.1"
+crossbeam = "0.2.10"
