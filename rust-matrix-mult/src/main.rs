@@ -38,10 +38,18 @@ fn load_from_file(mut file: File) -> Vec<Vec<i32>> {
 }
 
 fn multiply(matrix1 : &Vec<Vec<i32>>, matrix2 : &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+    let m1_cols = matrix1[0].len();
+    let m2_rows = matrix2.len();
+
     let m3_rows = matrix1.len();
     let m3_cols = matrix2[0].len();
-
+	 
     let mut matrix3 = create_empty_matrix(m3_rows, m3_cols);
+
+    if m1_cols != m2_rows {
+	    print!("Matrix size do not match for multiplication");
+	    return matrix3;
+    }
 
     let start = PreciseTime::now();
     
@@ -49,12 +57,12 @@ fn multiply(matrix1 : &Vec<Vec<i32>>, matrix2 : &Vec<Vec<i32>>) -> Vec<Vec<i32>>
         let mut row_index = 0;
         for row in &mut matrix3 { // We want each thread to modify `row`
             scope.spawn(move || { // Give ownership of a copy of `row_index` to each thread
-                for m3_col in 0..m3_cols {
+                for col2 in 0..m3_cols {
                     let mut sum = 0;
-                    for m2_col in 0..m3_cols { // Matrix2 Columns
-                        sum += matrix1[row_index][m3_col] * matrix2[m3_col][m2_col];
+                    for col1 in 0..m1_cols { // Matrix1 Columns
+                        sum += matrix1[row_index][col1] * matrix2[col1][col2];
                     }
-                    row[m3_col] = sum;
+                    row[col2] = sum;
                 }
             });
             row_index += 1;
