@@ -6,7 +6,7 @@ if ~isvar('A'), printm 'setup geometry, image, sinogram'
 	f.down = 4;
 	f.do_sparse = 1; % set to one for sparse angle case
 	ig = image_geom('nx', 512, 'fov', 50, 'down', f.down);
-	ig.mask = ig.circ > 0;
+	%ig.mask = ig.circ > 0;
 	sg = sino_geom('ge1', 'units', 'cm', 'strip_width', 'd', ...
 		'down', f.down);
 	if f.do_sparse, sg.na = 50; end % # views in sparse angle case
@@ -47,7 +47,7 @@ end
 
 if ~isvar('sino'), printm 'noisy fan-beam data'
 	I0 = 1e5; % incident photons; decrease this for "low dose" scans
-	rng(0)
+	rng('default')
 	% transmission data:
 	yi = poisson(I0 * exp(-sino_true), 0, 'factor', 0.4); % poisson noise
 	if any(yi(:) == 0)
@@ -59,6 +59,27 @@ if ~isvar('sino'), printm 'noisy fan-beam data'
 prompt
 end
 
+if 0
+    [rows, cols] = size(A);
+    C = 1 ./ sum(A);
+    R = 1 ./ sum(A');
+    C = diag(C);
+    R = diag(R);
+        C(~isfinite(C))=0;
+    R(~isfinite(R))=0;
+    CATR = C * A' * R;
+ 
+    
+    
+end
+    xSIRT = zeros(128 * 128, 1);
+    for i = 1 : 100
+      xSIRT = xSIRT + CATR * (yi(:) - A * xSIRT);
+    end 
+
+im(1, reshape(xSIRT, 128, 128), 'SIRT'), cbar
+
+imagesc(reshape(xSIRT,128,128)), colormap gray
 xl = @(x) xlabelf('RMSE = %.3f / %s', rms(col(x - xtrue)), sg.units);
 
 if ~isvar('fbp'), printm 'fbp 2d fan-beam reconstruction'
@@ -129,3 +150,6 @@ if f.do_sparse % sparse angle figure for book chapter
 %	ir_savefig ct_fan_beam_example1
 prompt
 end
+% dlmwrite('projections.csv',yi, 'precision', 9) 
+% dlmwrite('system_matrix.csv',full(A), 'precision', 9) 
+%export(A,'File','hospital.csv','Delimiter',',')

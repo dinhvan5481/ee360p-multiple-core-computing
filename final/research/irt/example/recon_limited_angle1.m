@@ -18,8 +18,8 @@ if ~isvar('sino')
 
 	% noiseless sinogram for illustration
 %	f.orbit = 140; % some missing views
-	f.orbit = 40; % many missing views!
-%	f.orbit = 180; % use this for full angular sampling
+%	f.orbit = 40; % many missing views!
+	f.orbit = 180; % use this for full angular sampling
 	if 1 % parallel
 		sg = sino_geom('par', 'nb', 140, 'na', 133, 'dr', ig.dx, ...
 			'orbit', f.orbit, ... % missing views

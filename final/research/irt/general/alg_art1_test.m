@@ -5,11 +5,12 @@
 % generate data
 if ~isvar('yi'), printm 'yi'
 	ig = image_geom('nx', 16, 'ny', 14, 'dx', 1);
-	ig.mask = ig.circ > 0;
+    
+	ig.mask = ig.circ > 5;
 	sg = sino_geom('par', 'nb', ig.nx, 'na', round(0.6 * ig.nx / 2)*2, ...
 		'dr', 1);
 	A = Gtomo2_strip(sg, ig);
-	xtrue = ig.circ(5);
+	xtrue = ig.circ(1);
 	yi = A * xtrue;
 end
 
