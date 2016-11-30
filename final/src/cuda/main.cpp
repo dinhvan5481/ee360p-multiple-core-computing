@@ -6,6 +6,7 @@
 #include "CTMatrix.h"
 #include "SIRT.h"
 #include "PPMWriter.h"
+#include "SART.h"
 
 using namespace std;
 
@@ -35,21 +36,21 @@ int main() {
 //    }
 //    CTMatrix<int> ctImgTest(imgTest);
 //    PPMWriter::create("test.pgm", ctImgTest);
-/*    Matrix<float, Dynamic, Dynamic, RowMajor> testMatrix(3,2);
-    Matrix<float, Dynamic, Dynamic> tmp;
-    testMatrix << -1, 0, 3, 0, 3, 0;
-    tmp = testMatrix;
-    Matrix<float, Dynamic, Dynamic, RowMajor> m;
-    m = testMatrix.colwise().sum().asDiagonal().inverse();
-    for (int rowIndex = 0; rowIndex < m.rows(); ++rowIndex) {
-        for (int colIndex = 0; colIndex < m.cols(); ++colIndex) {
-            if(std::isinf(m(rowIndex, colIndex))) {
-                m(rowIndex, colIndex) = 0;
-            }
-        }
-    }
 
-    cout << m;*/
+
+//    string systemMatrixFileName = "data/system_matrix_50_50.csv";
+//    string projectionsFileName = "data/projections_50_50.csv";
+//    shared_ptr<CTMatrix<float>> psCTSystemMatrix = make_shared<CTMatrix<float>>(systemMatrixFileName);
+//    shared_ptr<CTMatrix<float>> psCTProjections = make_shared<CTMatrix<float>>(projectionsFileName);
+//    int imageWidth = 50;
+//    int imageHeight = 50;
+//    float lambda = 1.9; // magic number
+//    float esp = 0.01;
+//    int maxRun = 100;
+//    weak_ptr<CTMatrix<float>> pwSystemMatrix(psCTSystemMatrix);
+//    weak_ptr<CTMatrix<float>> pwProjections(psCTProjections);
+//    SIRT sirt(imageWidth, imageHeight, pwSystemMatrix, pwProjections, lambda, esp, maxRun);
+//    sirt.run();
 
     string systemMatrixFileName = "data/system_matrix_50_50.csv";
     string projectionsFileName = "data/projections_50_50.csv";
@@ -60,11 +61,21 @@ int main() {
     float lambda = 1.9; // magic number
     float esp = 0.01;
     int maxRun = 100;
+    int nSensors = 75;
+    int nProjections = 36;
     weak_ptr<CTMatrix<float>> pwSystemMatrix(psCTSystemMatrix);
     weak_ptr<CTMatrix<float>> pwProjections(psCTProjections);
-    SIRT sirt(imageWidth, imageHeight, pwSystemMatrix, pwProjections, lambda, esp, maxRun);
-    sirt.run();
-
+    SART sart(imageWidth, imageHeight, pwSystemMatrix, pwProjections, lambda, esp, maxRun, nSensors, nProjections);
+    sart.run();
+//    MatrixXf testMatrix(4,4);
+//    Matrix<float, Dynamic, Dynamic> tmp;
+//    testMatrix << 1, 2, 3, 4,
+//            5, 6, 7, 8,
+//            9,10,11,12,
+//            13,14,15,16;
+//
+//
+//    cout << testMatrix.block(1, 1, 2, 2)/2 << endl;
 
     return 0;
 }
