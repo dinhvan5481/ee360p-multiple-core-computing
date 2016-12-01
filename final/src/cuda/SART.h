@@ -24,6 +24,7 @@ private:
     MatrixXf result;
     float lambda;
     float esp;
+    MatrixXf C, R, CATR;
 };
 
 

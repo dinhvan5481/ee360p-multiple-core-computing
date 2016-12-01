@@ -14,30 +14,38 @@ SART::SART(int nRows, int nCols, weak_ptr<CTMatrix<float>> pSystemMatrix,
     this->pwSystemMatrix = pSystemMatrix;
     this->pwProjections = pProjections;
     result = MatrixXf::Zero(nRows*nCols, 1);
-}
 
-void SART::run() {
     shared_ptr<CTMatrix<float>> psSystemMatrix = this->pwSystemMatrix.lock();
     shared_ptr<CTMatrix<float>> psProjections = this->pwProjections.lock();
     if(psSystemMatrix && psProjections) {
-        MatrixXf C, R;
-        R = psSystemMatrix->rawData.rowwise().sum().asDiagonal().inverse();
-        C = psSystemMatrix->rawData.transpose().rowwise().sum().asDiagonal().inverse();
+
+        this->R = psSystemMatrix->rawData.rowwise().sum().asDiagonal().inverse();
+        this->C = psSystemMatrix->rawData.transpose().rowwise().sum().asDiagonal().inverse();
         for (int rowIndex = 0; rowIndex < R.rows(); ++rowIndex) {
-            if(std::isinf(R(rowIndex, rowIndex))) {
+            if (std::isinf(R(rowIndex, rowIndex))) {
                 R(rowIndex, rowIndex) = 0;
             }
         }
         for (int rowIndex = 0; rowIndex < C.rows(); ++rowIndex) {
-            if(std::isinf(C(rowIndex, rowIndex))) {
+            if (std::isinf(C(rowIndex, rowIndex))) {
                 C(rowIndex, rowIndex) = 0;
             }
         }
-        MatrixXf CATR = C * psSystemMatrix->rawData.transpose() * R;
+        this->CATR = C * psSystemMatrix->rawData.transpose() * R;
+    }
+}
+
+void SART::run() {
+    cout << "Start run SART" << endl;
+    clock_t begin = clock();
+    shared_ptr<CTMatrix<float>> psSystemMatrix = this->pwSystemMatrix.lock();
+    shared_ptr<CTMatrix<float>> psProjections = this->pwProjections.lock();
+    if(psSystemMatrix && psProjections) {
         float a_sum = psSystemMatrix->rawData.sum();
         MatrixXf xTemp = MatrixXf::Zero(this->nRows*this->nCols, this->nProjections);
         float norm;
         for (int runIndex = 0; runIndex < this->maxRun; ++runIndex) {
+            cout << "SART run index: " << runIndex << endl;
             for (int theta = 0; theta < this->nProjections; ++theta) {
                 int idx_start = this->nProjections * theta;
                 float a_theta_sum = psSystemMatrix->rawData.block(idx_start, 0,
@@ -57,7 +65,8 @@ void SART::run() {
             }
 
         }
-
+        clock_t end = clock();
+        cout << "SART " << this->nCols << ": " << double(end - begin) / CLOCKS_PER_SEC << endl;
         Map<MatrixXf> imgData(this->result.data(), this->nRows, this->nCols);
         ostringstream ss;
         ss << "sart_" << this->nRows << "_" << this->nCols << ".pgm";

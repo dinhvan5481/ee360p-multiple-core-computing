@@ -11,7 +11,7 @@
 using namespace std;
 
 template <class T>
-CTMatrix<T>::CTMatrix(string const& dataFileName) {
+CTMatrix<T>::CTMatrix(string const& dataFileName, bool isRowMajor) {
     this->csvFileName = dataFileName;
     ifstream csvDataFile(this->csvFileName);
     vector<T> results = getNextLineAndSplitIntoTokens(csvDataFile);
@@ -23,7 +23,13 @@ CTMatrix<T>::CTMatrix(string const& dataFileName) {
         this->entries.insert(end(this->entries), begin(results), end(results));
 
     }
-    this->rawData = Matrix<T, Dynamic, Dynamic, RowMajor>::Map(&this->entries[0], this->nRows, this->nCols);
+    if(isRowMajor) {
+        this->rawData = Matrix<T, Dynamic, Dynamic, RowMajor>::Map(&this->entries[0], this->nRows, this->nCols);
+    } else {
+        this->rawData = Matrix<T, Dynamic, Dynamic>::Map(&this->entries[0], this->nRows, this->nCols);
+    }
+
+
 }
 
 template <class T>

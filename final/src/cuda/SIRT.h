@@ -22,6 +22,7 @@ private:
     int maxRun;
     float esp;
     Matrix<float, Dynamic, 1> result;
+    MatrixXf C, R, CATR;
 
 
 };

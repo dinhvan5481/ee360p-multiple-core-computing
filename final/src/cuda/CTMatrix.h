@@ -16,7 +16,7 @@ using namespace Eigen;
 template <class T>
 class CTMatrix {
     public:
-        CTMatrix(string const& dataFileName);
+        CTMatrix(string const& dataFileName, bool isRowMajor);
         CTMatrix(Matrix<T, Dynamic, Dynamic, RowMajor> data);
         int getNRows();
         int getNColumns();

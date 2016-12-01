@@ -52,21 +52,28 @@ int main() {
 //    SIRT sirt(imageWidth, imageHeight, pwSystemMatrix, pwProjections, lambda, esp, maxRun);
 //    sirt.run();
 
-    string systemMatrixFileName = "data/system_matrix_50_50.csv";
-    string projectionsFileName = "data/projections_50_50.csv";
-    shared_ptr<CTMatrix<float>> psCTSystemMatrix = make_shared<CTMatrix<float>>(systemMatrixFileName);
-    shared_ptr<CTMatrix<float>> psCTProjections = make_shared<CTMatrix<float>>(projectionsFileName);
-    int imageWidth = 50;
-    int imageHeight = 50;
+    string systemMatrixFileName = "data/system_matrix_128_128.csv";
+    string projectionsFileName = "data/projections_128_128.csv";
+    shared_ptr<CTMatrix<float>> psCTSystemMatrix = make_shared<CTMatrix<float>>(systemMatrixFileName, true);
+    shared_ptr<CTMatrix<float>> psCTProjections = make_shared<CTMatrix<float>>(projectionsFileName, false);
+    int imageWidth = 128;
+    int imageHeight = 128;
     float lambda = 1.9; // magic number
     float esp = 0.01;
-    int maxRun = 100;
+    int maxRun = 10;
     int nSensors = 75;
     int nProjections = 36;
     weak_ptr<CTMatrix<float>> pwSystemMatrix(psCTSystemMatrix);
     weak_ptr<CTMatrix<float>> pwProjections(psCTProjections);
+
     SART sart(imageWidth, imageHeight, pwSystemMatrix, pwProjections, lambda, esp, maxRun, nSensors, nProjections);
-    sart.run();
+
+    SIRT sirt(imageWidth, imageHeight, pwSystemMatrix, pwProjections, lambda, esp, maxRun);
+    for (int numOfRun = 0; numOfRun < 10; ++numOfRun) {
+        cout << "Run " << numOfRun << endl;
+        sart.run();
+        sirt.run();
+    }
 //    MatrixXf testMatrix(4,4);
 //    Matrix<float, Dynamic, Dynamic> tmp;
 //    testMatrix << 1, 2, 3, 4,

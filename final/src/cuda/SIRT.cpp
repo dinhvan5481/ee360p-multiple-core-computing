@@ -16,31 +16,38 @@ SIRT::SIRT(int width, int height, weak_ptr<CTMatrix<float>> pSystemMatrix, weak_
     this->height = height;
     result = MatrixXf::Zero(width * height, 1);
 
+    shared_ptr<CTMatrix<float>> psSystemMatrix = this->pSystemMatrix.lock();
+    shared_ptr<CTMatrix<float>> psProjections = this->pProjections.lock();
+    if(psSystemMatrix && psProjections) {
+        Matrix<float, Dynamic, Dynamic> tmp = psProjections->rawData;
+        Map<VectorXf> projections(tmp.data(), tmp.size());
+
+        this->R = psSystemMatrix->rawData.rowwise().sum().asDiagonal().inverse();
+        this->C = psSystemMatrix->rawData.transpose().rowwise().sum().asDiagonal().inverse();
+        for (int rowIndex = 0; rowIndex < R.rows(); ++rowIndex) {
+            if (std::isinf(R(rowIndex, rowIndex))) {
+                R(rowIndex, rowIndex) = 0;
+            }
+        }
+        for (int rowIndex = 0; rowIndex < C.rows(); ++rowIndex) {
+            if (std::isinf(C(rowIndex, rowIndex))) {
+                C(rowIndex, rowIndex) = 0;
+            }
+        }
+
+        this->CATR = C * psSystemMatrix->rawData.transpose() * R;
+    }
 }
 
 void SIRT::run() {
-
+    cout << "Start run SIRT" << endl;
+    clock_t begin = clock();
     shared_ptr<CTMatrix<float>> psSystemMatrix = this->pSystemMatrix.lock();
     shared_ptr<CTMatrix<float>> psProjections = this->pProjections.lock();
     if(psSystemMatrix && psProjections) {
         float norm;
         Matrix<float, Dynamic, Dynamic> tmp = psProjections->rawData;
         Map<VectorXf> projections(tmp.data(), tmp.size());
-        Matrix<float, Dynamic, Dynamic, RowMajor> C, R;
-        R = psSystemMatrix->rawData.rowwise().sum().asDiagonal().inverse();
-        C = psSystemMatrix->rawData.transpose().rowwise().sum().asDiagonal().inverse();
-        for (int rowIndex = 0; rowIndex < R.rows(); ++rowIndex) {
-            if(std::isinf(R(rowIndex, rowIndex))) {
-                R(rowIndex, rowIndex) = 0;
-            }
-        }
-        for (int rowIndex = 0; rowIndex < C.rows(); ++rowIndex) {
-            if(std::isinf(C(rowIndex, rowIndex))) {
-                C(rowIndex, rowIndex) = 0;
-            }
-        }
-
-        MatrixXf CATR = C * psSystemMatrix->rawData.transpose() * R;
 
         for (int runIndex = 0; runIndex < this->maxRun; ++runIndex) {
             result = result + CATR * (projections - psSystemMatrix->rawData * result );
@@ -49,6 +56,8 @@ void SIRT::run() {
                 break;
             }
         }
+        clock_t end = clock();
+        cout << "SIRT " << this->height << ": " << double(end - begin) / CLOCKS_PER_SEC << endl;
         Map<MatrixXf> imgData(this->result.data(), this->height, this->width);
         ostringstream ss;
         ss << "sirt_" << this->height << "_" << this->width << ".pgm";
