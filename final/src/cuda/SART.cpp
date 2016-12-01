@@ -17,6 +17,7 @@ SART::SART(int nRows, int nCols, weak_ptr<CTMatrix<float>> pSystemMatrix,
 
     shared_ptr<CTMatrix<float>> psSystemMatrix = this->pwSystemMatrix.lock();
     shared_ptr<CTMatrix<float>> psProjections = this->pwProjections.lock();
+    omp_set_num_threads(1);
     if(psSystemMatrix && psProjections) {
 
         this->R = psSystemMatrix->rawData.rowwise().sum().asDiagonal().inverse();

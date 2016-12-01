@@ -5,7 +5,9 @@
 #ifndef CUDA_SART_H
 #define CUDA_SART_H
 
-
+#include <memory>
+#include <omp.h>
+#include <ctime>
 #include "CTMatrix.h"
 
 class SART {

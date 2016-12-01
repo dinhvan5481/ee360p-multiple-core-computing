@@ -5,7 +5,7 @@
 #ifndef CUDA_SIRT_H
 #define CUDA_SIRT_H
 
-
+#include <memory>
 #include "CTMatrix.h"
 
 class SIRT {

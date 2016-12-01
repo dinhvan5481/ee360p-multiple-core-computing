@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <memory>
 #include <Eigen/Dense>
 
 #include "CTMatrix.h"
