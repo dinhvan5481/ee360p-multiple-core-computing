@@ -38,6 +38,7 @@ void SART::run() {
         MatrixXf xTemp = MatrixXf::Zero(this->nRows*this->nCols, this->nProjections);
         float norm;
         for (int runIndex = 0; runIndex < this->maxRun; ++runIndex) {
+            #pragma omp parallel for
             for (int theta = 0; theta < this->nProjections; ++theta) {
                 int idx_start = this->nProjections * theta;
                 float a_theta_sum = psSystemMatrix->rawData.block(idx_start, 0,
@@ -55,7 +56,7 @@ void SART::run() {
             if(norm <= esp) {
                 break;
             }
-
+            
         }
 
         Map<MatrixXf> imgData(this->result.data(), this->nRows, this->nCols);

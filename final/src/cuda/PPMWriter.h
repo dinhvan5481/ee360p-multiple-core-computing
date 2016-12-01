@@ -5,6 +5,7 @@
 #ifndef CUDA_PPMWRITER_H
 #define CUDA_PPMWRITER_H
 
+#include <memory>
 #include <Eigen/Dense>
 
 #include "CTMatrix.h"
